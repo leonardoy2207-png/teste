@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Treino de Debate – Arquitetura de Computadores</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--fg:#1c2230;--muted:#5d667a;--line:#dde1ea;--accent:#3b5bdb;--ok:#2b8a3e;--okbg:#e6f4ea;--bad:#c92a2a;--badbg:#fdecec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151c;--card:#1b2030;--fg:#e8ebf3;--muted:#98a2b8;--line:#2c3348;--accent:#7c93ff;--ok:#69db7c;--okbg:#17301f;--bad:#ff8787;--badbg:#3a1c1c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12151c;--card:#1b2030;--fg:#e8ebf3;--muted:#98a2b8;--line:#2c3348;--accent:#7c93ff;--ok:#69db7c;--okbg:#17301f;--bad:#ff8787;--badbg:#3a1c1c;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:.2em 0}
+.sub{color:var(--muted);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.meta{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);margin-bottom:8px}
+.tag{background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:1px 10px}
+h2{font-size:1.15rem;margin:.3em 0 1em;line-height:1.4}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 10px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--bad);background:var(--badbg)}
+.opt small{color:var(--muted)}
+.fb{margin-top:14px;padding:14px;border-radius:10px;background:var(--bg);border-left:4px solid var(--accent)}
+.fb b:first-child{display:block;margin-bottom:6px}.fb p{margin:.4em 0 0}
+.btn{font:inherit;font-weight:600;background:var(--accent);color:#fff;border:0;border-radius:10px;padding:11px 20px;cursor:pointer;margin:14px 10px 0 0}
+.btn.alt{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.score{font-size:2.6rem;font-weight:700;margin:.1em 0}
+.miss{border-top:1px solid var(--line);padding:12px 0}
+.miss p{margin:.3em 0}
+</style>
+</head>
+<body>
+<main>
+<h1>Treino de Debate: Arquitetura de Computadores</h1>
+<p class="sub">Perguntas no formato do debate: escolha o melhor argumento e veja a resposta modelo, com mecanismo e limitação.</p>
+<div id="app" class="card"></div>
+</main>
+<script>
+// [pergunta do debate, MELHOR ARGUMENTO, errada1, errada2, errada3, mecanismo||limitação]
+const T={
+"Memória cache":[
+["Um programa que precisa de muita velocidade consegue guardar os dados na cache?","O hardware gerencia a cache usando a localidade: dados recentes ou vizinhos tendem a ficar lá, mas o programa não os insere manualmente e nenhum dado tem permanência garantida.","Sim, o programador escolhe quais variáveis ficam na cache e elas permanecem sempre.","Não, a cache só guarda instruções do sistema operacional.","Sim, a cache guarda o programa inteiro se ele for rápido.","A cache mantém cópias de blocos reutilizáveis (localidade temporal e espacial); um hit evita ir à RAM.||Capacidade limitada: nada garante que o dado fique, e ela não guarda necessariamente o programa todo."],
+["Por que não guardar um arquivo enorme inteiro na cache?","A cache é muito menor que a RAM e o SSD e trabalha com blocos úteis; guardar o arquivo todo não é possível nem é a função dela.","A cache é mais lenta que o SSD e só serve para arquivos pequenos.","O sistema de arquivos proíbe a cache de ler arquivos.","Arquivos grandes são sempre comprimidos antes de chegar à CPU.","Os dados sobem em blocos pela hierarquia: um vídeo de 20 GB fica no SSD e só as partes em uso circulam. A leitura de arquivo envolve SO e E/S, diferente da cache da CPU.||A cache não substitui RAM nem SSD: só reduz o custo de acessos repetidos ou próximos."],
+["Por que um computador com muita RAM ainda pode ser lento?","RAM é só um fator: o gargalo pode estar na CPU, na GPU, nas faltas de cache, na E/S ou no código, e é preciso medir antes de atualizar.","RAM em excesso desacelera o sistema.","A RAM só é usada quando o SSD está cheio.","Mais RAM sempre aumenta o clock e causa superaquecimento.","Com RAM suficiente o limite passa a ser outro recurso; se ela faltar, o SO troca páginas com o armazenamento, muito mais lento.||Num jogo limitado pela GPU, mais RAM traz pouco efeito."],
+["Por que o acesso sequencial pode ser mais eficiente que o aleatório?","Elementos consecutivos estão no mesmo bloco trazido à cache (localidade espacial); saltos aleatórios exigem blocos diferentes e elevam a taxa de faltas.","A RAM lê mais rápido em ordem crescente, sem relação com a cache.","Acessos aleatórios nunca passam pela cache.","O acesso sequencial dispensa o uso de registradores.","Percorrer um vetor reaproveita blocos já carregados.||O efeito não é absoluto: depende do tamanho dos dados, da organização da cache e do padrão de acesso."],
+["O que acontece quando a cache está cheia?","Uma política de substituição (FIFO, LRU ou aleatória) escolhe o bloco a sair entre as posições permitidas; no mapeamento direto só existe uma linha possível.","A cache para de aceitar blocos até o programa terminar.","Todos os blocos são descartados de uma vez.","O novo bloco é gravado direto no SSD.","No mapeamento direto, dois blocos que disputam a mesma linha podem se expulsar mesmo com outras linhas vazias.||Cada política tem custo e resultado diferentes conforme o padrão de acesso."]
+],
+"Processador e clock":[
+["Se o processador precisa esperar um dado, ele fica totalmente parado?","Não necessariamente: num pipeline simples há stall, mas com execução fora de ordem ele executa instruções independentes enquanto espera.","Sim, qualquer espera paralisa totalmente o processador.","Não, ele executa HLT e continua o programa normalmente.","Não, ele inventa o valor do dado e segue sem verificar.","O objetivo é usar o hardware disponível durante a espera, preservando a correção do programa.||Se todas as operações disponíveis dependem do dado pendente, a espera não se esconde."],
+["Um processador de 4 GHz é duas vezes mais rápido que um de 2 GHz?","Não necessariamente: o clock encurta o ciclo (0,25 ns contra 0,5 ns), mas o tempo depende de instruções, CPI, dependências e faltas de cache.","Sim, o desempenho é sempre proporcional ao clock.","Sim, mas só quando a RAM também dobra.","Não, pois 4 GHz executa menos instruções por ciclo em qualquer caso.","Tempo de CPU = instruções × CPI ÷ frequência: o clock é só um dos termos.||Num programa limitado pela memória o ganho pode ser pequeno."],
+["Ter oito núcleos significa que um programa será oito vezes mais rápido?","Não: os núcleos só ajudam se o software oferecer trabalho divisível; parte sequencial, comunicação e sincronização limitam o ganho.","Sim, todo programa usa os oito núcleos igualmente.","Sim, desde que o clock passe de 2 GHz.","Não, núcleos extras servem apenas para reduzir consumo.","Milhares de imagens independentes se dividem bem entre núcleos.||Uma cadeia em que cada etapa depende da anterior quase não paraleliza."],
+["O que acontece quando o processador está ocioso?","O SO pode usar estados de espera e economia de energia, como a instrução HLT no x86; isso é diferente de um stall.","HLT resolve dependências de dados no pipeline.","Ocioso e em stall são o mesmo fenômeno.","O processador continua a 100% de consumo, pois não há como esperar.","HLT interrompe o núcleo até um evento permitir a retomada; stall é instrução em execução que não avança por dependência ou conflito.||HLT não é solução geral para dependência de dados: são problemas distintos."],
+["Por que um jogo pode travar mesmo com clock alto?","O tempo de quadro depende de CPU, GPU, memória, armazenamento e software; o gargalo pode ser a GPU, a falta de RAM ou acessos à memória, e só medições mostram qual.","Clock alto sempre elimina travamentos; o problema é só do jogo.","A cache L1 é grande demais e atrapalha.","Jogos usam só o SSD e ignoram a RAM.","A CPU pode preparar comandos mais rápido que a GPU renderiza, ou ficar esperando dados; RAM insuficiente causa troca de páginas.||Não se infere a causa pela frequência: é preciso medir uso, tempo de quadro e memória."]
+],
+"MIPS e pipelines":[
+["Como funciona uma dependência de dados no MIPS? (addi $t0,$zero,5 seguida de add $t1,$t0,$t0)","A segunda instrução precisa do resultado da primeira: há hazard de dados, reduzido por forwarding e, se o dado não chegar a tempo, resolvido com stall.","O MIPS executa as duas ao mesmo tempo, sem problema algum.","O hazard só ocorre em instruções de desvio.","O forwarding elimina todas as dependências, inclusive load seguido de uso.","Forwarding envia o resultado entre etapas sem esperar o WB e a leitura do registrador.||Um load seguido imediatamente do uso do dado ainda pode exigir pausa no modelo clássico."],
+["O que acontece quando o processador prevê um desvio incorretamente?","Descarta as instruções especulativas do caminho errado e redireciona a execução, pagando uma penalidade de ciclos.","O programa produz um resultado errado.","Nada: previsão errada não tem custo.","O processador reinicia o pipeline e a cache.","Prever evita esperar a decisão do desvio e mantém o pipeline ocupado.||Errar desperdiça trabalho iniciado; a penalidade depende da arquitetura e de quando o desvio é resolvido."],
+["Um pipeline de cinco etapas significa que cada instrução demora cinco ciclos?","Cada uma leva cerca de cinco ciclos para atravessar (latência), mas com o pipeline cheio e sem conflitos conclui-se uma por ciclo (vazão).","Sim, e por isso o pipeline não melhora o desempenho.","Não, cada instrução termina em um ciclo.","Sim, e as cinco etapas da mesma instrução rodam ao mesmo tempo.","Quando A está em WB, B pode estar em MEM e C em EX: instruções diferentes em estágios diferentes.||Hazards e stalls afastam o ideal de uma instrução por ciclo."],
+["Como o processador diminui o impacto dos acessos lentos à memória?","Combinando técnicas: cache, prefetching, execução fora de ordem, mais largura de banda e aproveitamento da localidade.","Apenas aumentando o clock da CPU.","Uma só técnica, a cache, elimina todos os atrasos.","Desligando o pipeline durante o acesso.","Cada técnica ataca um aspecto: frequência de faltas, antecipação, trabalho útil durante a espera ou volume transferido.||Nenhuma elimina todos os atrasos."],
+["O Intel Core i5 de 8ª geração executa instruções MIPS num pipeline de cinco estágios?","Não: ele usa x86-64; o pipeline MIPS é didático para explicar conceitos gerais, sem refletir a organização interna exata do Intel.","Sim, o i5 é um MIPS de cinco estágios.","Sim, MIPS e x86-64 são o mesmo conjunto de instruções.","Não, o i5 não usa pipeline.","Use exemplos em MIPS para explicar dependência e pipeline e fale do Intel em termos gerais de microarquitetura x86-64.||Afirmar que o Intel tem exatamente cinco estágios seria contestado no debate."]
+],
+"Arquitetura de memórias":[
+["Por que o computador fica lento ao usar o armazenamento como extensão da RAM?","Na memória virtual, páginas ausentes causam faltas de página e precisam vir do SSD/HD, muito mais lentos que a RAM; faltas repetidas fazem o sistema gastar tempo movendo páginas.","O SSD é volátil e perde os dados.","A memória virtual desliga a cache.","O armazenamento passa a funcionar como cache L1.","Endereços virtuais são traduzidos para físicos e o SO move páginas entre RAM e armazenamento.||A memória virtual amplia o espaço de endereçamento, mas não torna o SSD tão rápido quanto a RAM."],
+["É melhor aumentar a frequência da CPU ou melhorar a memória?","Depende do gargalo: CPU mais rápida ajuda em programas limitados por cálculo; se a CPU espera dados, reduzir faltas ou melhorar o fornecimento de memória rende mais.","Sempre a frequência, pois a memória não influencia.","Sempre a memória, pois a CPU nunca é gargalo.","Tanto faz: ambas dão o mesmo ganho.","Separe latência (tempo de resposta) de largura de banda (dados por tempo).||Quem reutiliza dados na cache ganha com baixa latência; quem move grandes volumes, com banda."],
+["Por que não usar somente SRAM em todo o computador?","A SRAM é rápida, mas ocupa mais área e custa mais por bit; a DRAM dá alta densidade para a RAM e a flash é não volátil, cada uma com uma função.","A SRAM é mais lenta que a DRAM.","A SRAM precisa de refresh e a DRAM não.","A SRAM só funciona dentro de SSDs.","SRAM na cache, DRAM na memória principal, flash nos SSDs.||Nenhuma tecnologia atende igualmente a velocidade, capacidade, custo e persistência."],
+["Aumentar a largura do barramento sempre melhora a velocidade?","Não: mais largura eleva os bits por transferência (banda), mas o resultado depende de frequência, protocolo e demais componentes, e não reduz necessariamente a latência.","Sim, a latência cai na mesma proporção.","Sim, e dispensa a cache.","Não, barramentos largos são sempre mais lentos.","Com uma transferência por ciclo, 64 bits movem o dobro de 32 bits por ciclo.||Largura de banda e latência são propriedades diferentes."]
+],
+"Desempenho integrado":[
+["Como decidir qual componente melhorar primeiro?","Partir do diagnóstico: medir uso, tempo de execução, faltas e consumo para achar o gargalo predominante.","Trocar sempre a RAM.","Escolher o componente mais caro.","Aumentar o clock, que resolve qualquer lentidão.","RAM insuficiente causa troca de páginas; a CPU limita cálculo; a GPU, gráficos; o armazenamento, E/S.||Não existe atualização melhor para todos os computadores."],
+["Uma arquitetura mais complexa é sempre melhor?","Não: previsão de desvios, execução fora de ordem, vários núcleos e caches elevam o desempenho, mas aumentam complexidade, controle e talvez consumo; uma arquitetura simples pode servir melhor se custo ou previsibilidade importam.","Sim, mais recursos sempre significam mais velocidade.","Sim, e não têm nenhum custo adicional.","Não, as arquiteturas simples são sempre mais rápidas.","O ganho aparece em programas com paralelismo e padrões de acesso favoráveis.||Complexidade é ferramenta para problemas específicos, não garantia de superioridade."],
+["É melhor reduzir o número de instruções ou diminuir os atrasos de memória?","Depende de onde está o tempo: programa limitado pela CPU ganha reduzindo instruções; programa que espera dados ganha com melhor localidade e menos faltas de cache.","Sempre reduzir instruções.","Sempre reduzir os atrasos de memória.","Nenhuma otimização muda o tempo total.","Ataca-se o fator que mais contribui para o tempo total; muitos programas têm combinação de fatores.||Sem medir, a escolha vira palpite."],
+["Um computador tem CPU melhor e outro tem cache mais eficiente. Qual é mais rápido?","Não dá para decidir sem o programa e as condições de teste: compara-se o tempo para executar o mesmo trabalho em condições equivalentes.","O da CPU melhor, sempre.","O da cache mais eficiente, sempre.","O que tiver o maior clock declarado.","CPU forte vence em cálculo; cache eficiente vence quando há reuso de dados.||O desempenho percebido é do sistema completo e do trabalho que ele executa."]
+],
+"Perguntas de confronto":[
+["Por que um processador com clock maior pode ter desempenho inferior num programa específico?","O tempo depende também de CPI, instruções, faltas de cache e dependências: se o programa espera a memória, ciclos mais curtos pouco ajudam e outra CPU pode concluir mais trabalho por ciclo.","Clock alto desativa a cache.","Programas só usam clock baixo.","Isso é impossível: clock alto sempre vence.","Tempo = instruções × CPI ÷ frequência.||Uma CPU de clock menor com CPI menor ou menos faltas pode terminar antes."],
+["Quando uma cache maior não traz ganho significativo?","Quando as faltas já são raras ou o gargalo é outro (cálculo, GPU, E/S); o retorno é decrescente e há custo.","Nunca: cache maior sempre ajuda muito.","Quando o programa usa registradores.","Quando a RAM é DRAM.","Tamanho, associatividade e tamanho do bloco influenciam a taxa de faltas.||Conflitos de mapeamento e o padrão de acesso também contam, não só a capacidade."],
+["Por que forwarding reduz algumas dependências, mas não todas?","Ele só encaminha resultados já calculados; se o dado ainda não existe (ex.: load seguido de uso), é preciso stall.","Forwarding só funciona em desvios.","Forwarding apaga o registrador de destino.","O MIPS não aceita forwarding.","O resultado segue entre etapas sem esperar o WB.||O dado precisa estar pronto em alguma etapa para ser encaminhado."],
+["Por que mais largura de banda não elimina a latência?","Banda é dados por tempo; latência é o tempo de resposta de um acesso: um canal mais largo transporta mais, mas o primeiro dado não chega mais cedo.","Banda e latência são a mesma medida.","A latência só existe no SSD.","Banda maior sempre aumenta a latência.","Grandes volumes dependem de banda; acessos curtos e dependentes dependem de latência.||O resultado real depende de frequência, protocolo e padrão de acesso."],
+["Como distinguir falta de RAM de baixa eficiência da cache?","Medindo: falta de RAM aparece como troca de páginas e uso intenso do armazenamento; ineficiência da cache aparece como alta taxa de faltas com RAM suficiente.","Pelo clock da CPU, que muda nos dois casos.","Não é possível distinguir.","Falta de RAM sempre deixa a cache vazia.","Ambas geram espera por dados, mas em níveis diferentes: página ausente vai ao SSD/HD; falta de cache vai à RAM.||Sem medidas de uso de memória e de faltas, o diagnóstico vira palpite."],
+["Quando adicionar núcleos e quando melhorar um único núcleo?","Núcleos extras valem para trabalho divisível em tarefas independentes; um núcleo mais forte vale quando o programa é majoritariamente sequencial ou dependente.","Núcleos extras sempre, em qualquer programa.","Núcleo único sempre, pois paralelismo não funciona.","Depende só do preço.","O ganho do paralelismo é limitado pela parte sequencial, comunicação e sincronização.||A escolha depende da aplicação."]
+]};
+const app=document.getElementById("app");
+let order,i,score,missed;
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function items(n){return T[n].map(a=>[n].concat(a))}
+function home(){
+ let h='<h2>Escolha um tema</h2>';
+ Object.keys(T).forEach(n=>{h+='<button class="opt" data-t="'+n+'"><b>'+n+'</b> <small>· '+T[n].length+' perguntas</small></button>'});
+ h+='<button class="opt" data-t="sim"><b>Simulado do debate</b> <small>· 10 perguntas sorteadas</small></button><button class="opt" data-t="*"><b>Todos os temas misturados</b> <small>· '+Object.keys(T).reduce((s,n)=>s+T[n].length,0)+' perguntas</small></button>';
+ app.innerHTML=h;
+ app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const t=b.dataset.t,all=Object.keys(T).flatMap(items);begin(t==="*"?all:t==="sim"?shuffle(all).slice(0,10):items(t))});
+}
+function begin(list){order=shuffle(list);i=0;score=0;missed=[];show()}
+function show(){
+ if(i>=order.length)return end();
+ const q=order[i];
+ app.innerHTML='<div class="bar"><i style="width:'+(i/order.length*100)+'%"></i></div>'+
+  '<div class="meta"><span class="tag">'+q[0]+'</span><span>'+(i+1)+' / '+order.length+'</span></div>'+
+  '<h2>'+q[1]+'</h2><div id="opts"></div><div id="fb"></div>';
+ const box=document.getElementById("opts");
+ shuffle([q[2],q[3],q[4],q[5]]).forEach(t=>{
+  const b=document.createElement("button");
+  b.className="opt";b.textContent=t;
+  b.onclick=()=>answer(b,t===q[2],q);
+  box.appendChild(b);
+ });
+}
+function answer(btn,right,q){
+ document.querySelectorAll("#opts .opt").forEach(b=>{b.disabled=true;if(b.textContent===q[2])b.classList.add("ok")});
+ if(right)score++;else{btn.classList.add("bad");missed.push(q)}
+ const last=i===order.length-1;
+ document.getElementById("fb").innerHTML='<div class="fb"><b>'+(right?"Boa resposta de debate!":"Esse argumento seria contestado.")+'</b><p><b>Mecanismo:</b> '+q[6].split("||")[0]+'</p><p><b>Limitação:</b> '+q[6].split("||")[1]+'</p></div><button class="btn" id="nx">'+(last?"Ver resultado":"Próxima")+'</button>';
+ document.getElementById("nx").onclick=()=>{i++;show()};
+}
+function end(){
+ const pct=Math.round(score/order.length*100);
+ let h='<div class="bar"><i style="width:100%"></i></div><h2>Resultado</h2><div class="score">'+score+' / '+order.length+' ('+pct+'%)</div><p>'+
+  (pct>=80?"Muito bem! Você já consegue sustentar essas respostas no debate.":pct>=50?"Bom caminho. Revise os pontos errados abaixo.":"Releia o guia e tente de novo: o importante é entender o mecanismo.")+'</p>';
+ if(missed.length){
+  h+='<h3>Para revisar</h3>';
+  missed.forEach(q=>{h+='<div class="miss"><span class="tag">'+q[0]+'</span><p><b>'+q[1]+'</b></p><p>'+q[2]+'</p><p style="color:var(--muted)">'+q[6].replace("||"," Limitação: ")+'</p></div>'});
+  h+='<button class="btn" id="rm">Refazer só os erros</button>';
+ }
+ h+='<button class="btn alt" id="hm">Voltar aos temas</button>';
+ app.innerHTML=h;
+ document.getElementById("hm").onclick=home;
+ const rm=document.getElementById("rm");if(rm)rm.onclick=()=>begin(missed.slice());
+}
+home();
+</script>
+</body>
+</html>
